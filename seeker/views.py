@@ -528,7 +528,7 @@ class SeekerView (View):
         from .models import SearchResultsRecord
         SearchResultsRecord.objects.create(user=self.request.user,
                                            querystring=context['querystring'],
-                                           displayed_columns=context['display_columns'],
+                                           displayed_columns=', '.join(str(col) for col in context['display_columns']),
                                            url=self.request.path,
                                            result_count=context['results'].hits.total)
 
