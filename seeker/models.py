@@ -22,3 +22,18 @@ class SavedSearch (models.Model):
 
     def get_absolute_url(self):
         return '%s?%s%s%s%d' % (self.url, self.querystring, ('&' if self.querystring else ''), 'saved_search=', self.pk)
+
+@python_2_unicode_compatible
+class SearchResultsRecord (models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='search_results_records', null=True, on_delete=models.CASCADE)
+    querystring = models.TextField(blank=True)
+    displayed_columns = models.TextField(blank=True)
+    url = models.CharField(max_length=200, db_index=True)
+    result_count = models.BigIntegerField()
+    date_searched = models.DateTimeField(default=timezone.now, editable=False)
+    
+    class Meta:
+        ordering = ('-date_searched', 'user')
+
+    def __str__(self):
+        return '%s - %s' % (date_searched, user)

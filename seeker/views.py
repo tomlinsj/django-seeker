@@ -287,6 +287,11 @@ class SeekerView (View):
     """
     A dictionary of default templates for each field
     """
+    
+    collect_search_records = False
+    """
+    Create a SearchResultsRecord object for each search performed in this view. 
+    """
 
     def normalized_querystring(self, qs=None, ignore=None):
         """
@@ -519,6 +524,15 @@ class SeekerView (View):
                     facet.apply(s)
         return s
 
+    def save_search_results(self, context):
+        from .models import SearchResultsRecord
+        SearchResultsRecord.objects.create(user=self.request.user,
+                                           querystring=context['querystring'],
+                                           displayed_columns=context['display_columns'],
+                                           url=self.request.path,
+                                           result_count=context['results'].hits.total)
+
+
     def render(self):
         from .models import SavedSearch
 
@@ -609,6 +623,9 @@ class SeekerView (View):
 
         if self.extra_context:
             context.update(self.extra_context)
+
+        if self.collect_search_records:
+            self.save_search_results(context)
 
         if self.request.is_ajax():
             return JsonResponse({
